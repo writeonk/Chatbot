@@ -1,5 +1,4 @@
-### Selenium Webdriver Gradle Demo
-- Automation test suite for Web Application
+### Web Chatbot Automation test suite with Selenium Webdriver + Gradle
 
 ### Key Feature
 1. Java as a language
