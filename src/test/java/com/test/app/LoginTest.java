@@ -2,6 +2,8 @@ package com.test.app;
 
 import com.aventstack.extentreports.Status;
 import common.TestBase;
+import org.openqa.selenium.Dimension;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.LoginPage;
 
@@ -43,5 +45,42 @@ public class LoginTest extends TestBase {
         loginPage.clickSignIn();
         test.log(Status.INFO, "Clicked on SignIn");
         logger.info("Click on Login");
+    }
+
+    @Test
+    public void tc02ChatWidgetLoadsOnDesktopAndMobile() {
+
+        test = extent.createTest("Verify Chat Widget Loads On Desktop And Mobile", "").assignCategory("Functional_TestCase");
+        logger.info("Verify Chat Widget Loads On Desktop And Mobile");
+
+        Dimension originalSize = driver.manage().window().getSize();
+
+        try {
+            // Desktop View
+            driver.manage().window().setSize(new Dimension(1920, 1080));
+            if (LoginPage.isChatWidgetDisplayed()) {
+                test.log(Status.PASS, "Chat widget is visible in Desktop view! 1920 : 1080");
+                logger.info("Chat widget is visible in Desktop view! 1920 : 1080");
+            } else {
+                test.log(Status.FAIL, "Chat widget is NOT visible in Desktop view! 1920 : 1080");
+                logger.error("Chat widget is NOT visible in Desktop view! 1920 : 1080");
+                Assert.fail("Chat widget not visible in Desktop view! 1920 : 1080"); // fail the test
+            }
+
+            // Mobile View
+            driver.manage().window().setSize(new Dimension(375, 812)); // iPhone X size
+            if (LoginPage.isChatWidgetDisplayed()) {
+                test.log(Status.PASS, "Chat widget is visible in Mobile view! 375 : 812");
+                logger.info("Chat widget is visible in Mobile view! 375 : 812");
+            } else {
+                test.log(Status.FAIL, "Chat widget is NOT visible in Mobile view! 375 : 812");
+                logger.error("Chat widget is NOT visible in Mobile view! 375 : 812");
+                Assert.fail("Chat widget not visible in Mobile view! 375 : 812"); // fail the test
+            }
+
+        } finally {
+            // Reset to original size
+            driver.manage().window().setSize(originalSize);
+        }
     }
 }
