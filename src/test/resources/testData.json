@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "question": "Who is the current ruler of UAE?",
+      "expected_keywords": ["Sheikh Mohamed bin Zayed", "President of UAE", "Ruler of Abu Dhabi"],
+      "min_keyword_match": 1
+    },
+    {
+      "question": "What are the steps to get a driving license in UAE?",
+      "expected_keywords": [
+        "register at driving school",
+        "eye test",
+        "theory test",
+        "practical training",
+        "final road test"
+      ],
+      "min_keyword_match": 3
+    }
+  ]
+}

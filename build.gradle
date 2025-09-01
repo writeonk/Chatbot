@@ -1,0 +1,50 @@
+plugins {
+
+    id 'java-library'
+    id 'java'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'org.seleniumhq.selenium:selenium-java:4.25.0'
+    implementation 'org.seleniumhq.selenium:selenium-grid:4.35.0'
+    implementation 'org.seleniumhq.selenium:selenium-chrome-driver:4.0.0-alpha-5'
+    implementation 'org.seleniumhq.selenium:selenium-firefox-driver:4.0.0-alpha-5'
+    implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'jexcelapi:jxl:2.4.2'
+    implementation 'com.aventstack:extentreports:5.1.2'
+    implementation 'org.apache.poi:poi-ooxml:5.4.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:3.0.0-beta2'
+    implementation 'org.apache.commons:commons-email:1.5'
+    testImplementation 'org.testng:testng:7.10.2'
+    implementation 'io.github.bonigarcia:webdrivermanager:6.2.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// run with the command 'gradle clean test' in CLI
+test {
+    //this tells Gradle to use TestNG
+    useTestNG() {
+        // this tells TestNG to execute its default reporting structure
+        useDefaultListeners = true
+        testLogging.showStandardStreams = true
+        // location of testng.xml
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+// run with the command 'gradle clean smokeTests' in CLI
+tasks.register('smokeTests', Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        testLogging.showStandardStreams = true
+        suites 'src/test/resources/testng.xml'
+        includeGroups 'Smoke'
+    }
+}
