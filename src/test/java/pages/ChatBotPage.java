@@ -1,8 +1,6 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -13,14 +11,19 @@ import java.util.List;
 public class ChatBotPage {
 
     WebDriver driver;
+    JavascriptExecutor js;
 
     public ChatBotPage(WebDriver driver) {
         this.driver = driver;
+        this.js = (JavascriptExecutor) driver;
         PageFactory.initElements(driver, this);
     }
 
     @FindBy(xpath = "//div[normalize-space()='New Chat']")
     private WebElement btnNewChat;
+
+    @FindBy(id = "chat-input-container")
+    private WebElement chatWindow;
 
     @FindBy(id = "chat-input")
     private WebElement txtChatInput;
@@ -42,7 +45,7 @@ public class ChatBotPage {
         txtChatInput.sendKeys(text);
     }
 
-    public void sendMessage() {
+    public void btnSendPrompt() {
         btnSendMessage.click();
     }
 
@@ -81,6 +84,71 @@ public class ChatBotPage {
             }
             return null;
         });
+    }
+
+    // Actions
+    public void txtSendPrompt(String text) {
+        txtChatInput.sendKeys(text);
+        txtChatInput.sendKeys(Keys.ENTER); // accessibility check (Enter key)
+    }
+
+    public boolean isMessageDisplayed(String expected) {
+        WebElement lastMessage = driver.findElement(By.cssSelector(".chat-message:last-child"));
+        return lastMessage.getText().contains(expected);
+    }
+
+    private long getJsValueAsLong(String script, WebElement element) {
+        Object result = js.executeScript(script, element);
+        return (result != null) ? ((Number) result).longValue() : 0L;
+    }
+
+    // Scroll
+    public long getScrollHeight() {
+        return getJsValueAsLong("return arguments[0].scrollHeight;", chatWindow);
+    }
+
+    public long getClientHeight() {
+        return getJsValueAsLong("return arguments[0].clientHeight;", chatWindow);
+    }
+
+    public long getScrollTop() {
+        return getJsValueAsLong("return arguments[0].scrollTop;", chatWindow);
+    }
+
+    public void scrollToTop() {
+        js.executeScript("arguments[0].scrollTop = 0;", chatWindow);
+    }
+
+    public void scrollToBottom() {
+        js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", chatWindow);
+    }
+
+    public boolean isAutoScrolledToBottom() {
+        long scrollHeight = getScrollHeight();
+        long clientHeight = getClientHeight();
+        long scrollTop = getScrollTop();
+        return scrollTop >= (scrollHeight - clientHeight - 5);
+    }
+
+    // Accessibility
+    public String getChatInputAccessibleName() {
+        // Try aria-label first
+        String ariaLabel = txtChatInput.getAttribute("aria-label");
+        if (ariaLabel != null && !ariaLabel.isEmpty()) return ariaLabel;
+        // Try placeholder-like attributes inside ProseMirror
+        try {
+            WebElement placeholderElement = txtChatInput.findElement(By.cssSelector("p[data-placeholder]"));
+            String placeholder = placeholderElement.getAttribute("data-placeholder");
+            if (placeholder != null && !placeholder.isEmpty()) return placeholder;
+        } catch (NoSuchElementException e) {
+            // ignore if not found
+        }
+        // Fallback
+        return null;
+    }
+
+    public WebElement getFocusedElement() {
+        return driver.switchTo().activeElement();
     }
 
     public boolean isLastResponseLTR() {

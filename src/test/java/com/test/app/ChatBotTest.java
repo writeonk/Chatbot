@@ -6,6 +6,7 @@ import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import common.TestBase;
+import org.openqa.selenium.Keys;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -25,7 +26,6 @@ public class ChatBotTest extends TestBase {
 
     @BeforeMethod
     public void setUpPage() {
-        // driver is already initialized in TestBase
         chatBotPage = new ChatBotPage(driver);
     }
 
@@ -58,7 +58,19 @@ public class ChatBotTest extends TestBase {
     }
 
     @Test
-    public void tc01testEnglishMessage() {
+    public void tc01testAccessibility_Aria() {
+
+        test = extent.createTest("Verify test Accessibility Aria", "").assignCategory("UI_TestCase");
+        logger.info("Verify test Accessibility Aria");
+
+        String accessibleName = chatBotPage.getChatInputAccessibleName();
+        Assert.assertNotNull(accessibleName, "Chat input missing accessibility name (aria-label or data-placeholder)");
+        logger.info("Found chat input accessible name: {}", accessibleName);
+        test.log(Status.INFO, "Found chat input accessible name: " + accessibleName);
+    }
+
+    @Test
+    public void tc02testEnglishMessage() {
 
         test = extent.createTest("Verify Chatbot English Response", "").assignCategory("Functional_TestCase");
         logger.info("Verify Chatbot English Response");
@@ -67,32 +79,81 @@ public class ChatBotTest extends TestBase {
 
         // chatBotPage.startNewChat();
         chatBotPage.enterBotRequest(english_message);
-        chatBotPage.sendMessage();
+        chatBotPage.btnSendPrompt();
 
         String response = chatBotPage.BotResponse(Duration.ofSeconds(5), Duration.ofMillis(300));
         System.out.println("Chatbot response: " + response);
+        logger.info("Bot Response: {}", response);
         test.log(Status.INFO, "Bot Response: " + response);
 
         Assert.assertTrue(chatBotPage.isLastResponseLTR(), "Response should be LTR for English");
     }
 
     @Test
-    public void tc02testArabicMessage() {
+    public void tc03testArabicMessage() {
 
         test = extent.createTest("Verify Chatbot Arabic Response", "").assignCategory("Functional_TestCase");
         logger.info("Verify Chatbot Arabic Response");
 
         String arabic_message = "مرحبًا";
         chatBotPage.enterBotRequest(arabic_message);
-        chatBotPage.sendMessage();
+        chatBotPage.btnSendPrompt();
 
         String response = chatBotPage.BotResponse(Duration.ofSeconds(5), Duration.ofMillis(300));
         System.out.println("Chatbot response: " + response);
+        logger.info("Bot Response: {}", response);
         test.log(Status.INFO, "Bot Response: " + response);
         Assert.assertTrue(chatBotPage.isLastResponseRTL(), "Response should be RTL for Arabic");
     }
 
-    @Test(dataProvider = "chatBotTestData", enabled = false)
+    @Test
+    public void tc04testScroll_AutoScrollAndManualScroll() {
+
+        test = extent.createTest("testScroll AutoScroll And Manual Scroll", "").assignCategory("UI_TestCase");
+        logger.info("testScroll AutoScroll And Manual Scroll");
+
+        for (int i = 0; i < 50; i++) {
+            chatBotPage.txtSendPrompt("Scrolling Test " + i);
+        }
+
+        logger.info("Messages sent. Now verifying auto-scroll.");
+        test.log(Status.INFO, "Messages sent. Now verifying auto-scroll.");
+
+        Assert.assertTrue(chatBotPage.isAutoScrolledToBottom(), "Auto-scroll not working properly");
+        logger.info("Auto-scroll verified successfully.");
+        test.log(Status.INFO, "Auto-scroll verified successfully.");
+
+        chatBotPage.scrollToTop();
+        Assert.assertEquals(chatBotPage.getScrollTop(), 0, "Manual scroll to top failed");
+        logger.info("Manual scroll to top failed");
+        test.log(Status.INFO, "Manual scroll to top failed");
+    }
+
+    @Test
+    public void tc05testKeyboardNavigation_Focus() {
+
+        test = extent.createTest("test Keyboard Navigation Focus", "").assignCategory("UI_TestCase");
+        logger.info("test Keyboard Navigation Focus");
+
+        chatBotPage.txtSendPrompt("Focus Test");
+        chatBotPage.getFocusedElement().sendKeys(Keys.TAB); // File
+        chatBotPage.getFocusedElement().sendKeys(Keys.TAB); // Tools
+        chatBotPage.getFocusedElement().sendKeys(Keys.TAB); // Send message button
+
+        String focusedId = chatBotPage.getFocusedElement().getAttribute("id");
+        Assert.assertEquals(focusedId, "send-message-button", "Focus did not move to Send button after pressing TAB");
+    }
+
+    @Test
+    public void tc06testManualScrollToBottom() {
+        chatBotPage.scrollToTop();
+        Assert.assertEquals(chatBotPage.getScrollTop(), 0, "Failed to scroll to top");
+
+        chatBotPage.scrollToBottom();
+        Assert.assertTrue(chatBotPage.isAutoScrolledToBottom(), "Manual scroll to bottom did not work");
+    }
+
+    @Test(dataProvider = "chatBotTestData")
     public void chatBotValidation(TestCase tc) {
 
         test = extent.createTest("Verify Chatbot Response Accuracy", "").assignCategory("Functional_TestCase");
@@ -105,9 +166,9 @@ public class ChatBotTest extends TestBase {
 
         // chatBotPage.startNewChat();
         chatBotPage.enterBotRequest(question);
-        chatBotPage.sendMessage();
+        chatBotPage.btnSendPrompt();
 
-        String actualResponse = chatBotPage.BotResponse(Duration.ofSeconds(30), Duration.ofMillis(300));
+        String actualResponse = chatBotPage.BotResponse(Duration.ofSeconds(25), Duration.ofMillis(300));
         test.log(Status.INFO, "Bot Response: " + actualResponse);
 
         int matchCount = 0;
@@ -129,17 +190,16 @@ public class ChatBotTest extends TestBase {
 
         Assert.assertTrue(
                 matchCount >= minMatch,
-                "\n❌ Response validation failed" +
-                        "\nQuestion: " + question +
-                        "\nExpected Keywords: " + expectedKeywords +
-                        "\nActual Response: " + actualResponse +
-                        "\nMatched: " + matchCount + "/" + expectedKeywords.size()
+                "\n Response validation failed" +
+                        "\n Question: " + question +
+                        "\n Expected Keywords: " + expectedKeywords +
+                        "\n Actual Response: " + actualResponse +
+                        "\n Matched: " + matchCount + "/" + expectedKeywords.size()
         );
 
-        System.out.println("\n✅ Test Passed");
+        System.out.println("\n Test Passed");
         System.out.println("Question: " + question);
         System.out.println("Bot Response: " + actualResponse);
         System.out.println("Keywords Matched: " + matchCount + "/" + expectedKeywords.size());
     }
-
 }

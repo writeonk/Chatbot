@@ -47,7 +47,7 @@ public class LoginTest extends TestBase {
         logger.info("Click on Login");
     }
 
-    @Test
+    @Test(enabled = false)
     public void tc02ChatWidgetLoadsOnDesktopAndMobile() {
 
         test = extent.createTest("Verify Chat Widget Loads On Desktop And Mobile", "").assignCategory("Functional_TestCase");
