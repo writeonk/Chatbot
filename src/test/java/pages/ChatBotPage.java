@@ -1,5 +1,6 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -82,15 +83,43 @@ public class ChatBotPage {
         });
     }
 
-    // Verify if last response is RTL (Arabic)
-    public boolean isLastResponseRTL() {
-        String dir = chatBotResponses.get(chatBotResponses.size() - 1).getCssValue("direction");
-        return dir.equalsIgnoreCase("rtl");
-    }
-
-    // Verify if last response is LTR (English)
     public boolean isLastResponseLTR() {
         String dir = chatBotResponses.get(chatBotResponses.size() - 1).getCssValue("direction");
         return dir.equalsIgnoreCase("ltr");
+    }
+
+    public boolean isLastResponseRTL() {
+        WebElement lastResponse = chatBotResponses.get(chatBotResponses.size() - 1);
+        return isElementOrAncestorRTL(lastResponse);
+    }
+
+    private boolean isElementOrAncestorRTL(WebElement element) {
+        // Check this element's CSS direction
+        String dir = element.getCssValue("direction");
+        if ("rtl".equalsIgnoreCase(dir)) {
+            return true;
+        }
+
+        //  Check if element text contains Arabic characters
+        String text = element.getText();
+        boolean containsArabic = text.codePoints().anyMatch(
+                c -> (c >= 0x0600 && c <= 0x06FF) || (c >= 0x0750 && c <= 0x077F)
+        );
+        if (containsArabic) {
+            return true;
+        }
+
+        //  Recurse to parent if not yet at the root
+        try {
+            WebElement parent = element.findElement(By.xpath(".."));
+            // Stop recursion if parent is the body element
+            if ("html".equalsIgnoreCase(parent.getTagName()) || parent == element) {
+                return false;
+            }
+            return isElementOrAncestorRTL(parent);
+        } catch (Exception e) {
+            // If no parent or any other error, assume not RTL
+            return false;
+        }
     }
 }
