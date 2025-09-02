@@ -83,4 +83,5 @@ public class LoginTest extends TestBase {
             driver.manage().window().setSize(originalSize);
         }
     }
+
 }

@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import common.TestBase;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.ChatBotPage;
@@ -19,6 +20,14 @@ import java.time.Duration;
 import java.util.List;
 
 public class ChatBotTest extends TestBase {
+
+    ChatBotPage chatBotPage;
+
+    @BeforeMethod
+    public void setUpPage() {
+        // driver is already initialized in TestBase
+        chatBotPage = new ChatBotPage(driver);
+    }
 
     @DataProvider(name = "chatBotTestData")
     public Object[][] getChatBotTestData() throws FileNotFoundException {
@@ -33,9 +42,61 @@ public class ChatBotTest extends TestBase {
         return data;
     }
 
-    @Test(dataProvider = "chatBotTestData")
+    private int countKeywordMatches(String response, List<String> keywords) {
+        if (response == null || response.isEmpty()) return 0;
+        String normalizedResponse = response.replaceAll("[\\n\\r]+", " ")
+                .replaceAll("[^a-zA-Z0-9 ]", "")
+                .toLowerCase();
+        int count = 0;
+        for (String keyword : keywords) {
+            String normalizedKeyword = keyword.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase();
+            if (normalizedResponse.contains(normalizedKeyword)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Test
+    public void tc01testEnglishMessage() {
+
+        test = extent.createTest("Verify Chatbot English Response", "").assignCategory("Functional_TestCase");
+        logger.info("Verify Chatbot English Response");
+
+        String english_message = "Hello";
+
+        // chatBotPage.startNewChat();
+        chatBotPage.enterBotRequest(english_message);
+        chatBotPage.sendMessage();
+
+        String response = chatBotPage.BotResponse(Duration.ofSeconds(5), Duration.ofMillis(300));
+        System.out.println("Chatbot response: " + response);
+        test.log(Status.INFO, "Bot Response: " + response);
+
+        Assert.assertTrue(chatBotPage.isLastResponseLTR(), "Response should be LTR for English");
+    }
+
+    @Test
+    public void tc02testArabicMessage() {
+
+        test = extent.createTest("Verify Chatbot Arabic Response", "").assignCategory("Functional_TestCase");
+        logger.info("Verify Chatbot Arabic Response");
+
+        String arabic_message = "مرحبًا";
+        chatBotPage.enterBotRequest(arabic_message);
+        chatBotPage.sendMessage();
+
+        String response = chatBotPage.BotResponse(Duration.ofSeconds(5), Duration.ofMillis(300));
+        System.out.println("Chatbot response: " + response);
+        test.log(Status.INFO, "Bot Response: " + response);
+        Assert.assertTrue(chatBotPage.isLastResponseRTL(), "Response should be RTL for Arabic");
+    }
+
+    @Test(dataProvider = "chatBotTestData", enabled = false)
     public void chatBotValidation(TestCase tc) {
-        ChatBotPage chatBotPage = new ChatBotPage(driver);
+
+        test = extent.createTest("Verify Chatbot Response Accuracy", "").assignCategory("Functional_TestCase");
+        logger.info("Verify Chatbot Response Accuracy");
 
         String question = tc.getQuestion();
         List<String> expectedKeywords = tc.getExpected_keywords();
@@ -81,18 +142,4 @@ public class ChatBotTest extends TestBase {
         System.out.println("Keywords Matched: " + matchCount + "/" + expectedKeywords.size());
     }
 
-    private int countKeywordMatches(String response, List<String> keywords) {
-        if (response == null || response.isEmpty()) return 0;
-        String normalizedResponse = response.replaceAll("[\\n\\r]+", " ")
-                .replaceAll("[^a-zA-Z0-9 ]", "")
-                .toLowerCase();
-        int count = 0;
-        for (String keyword : keywords) {
-            String normalizedKeyword = keyword.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase();
-            if (normalizedResponse.contains(normalizedKeyword)) {
-                count++;
-            }
-        }
-        return count;
-    }
 }

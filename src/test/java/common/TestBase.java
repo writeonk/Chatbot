@@ -2,6 +2,7 @@ package common;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.MediaEntityBuilder;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.JsonFormatter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
@@ -10,6 +11,8 @@ import library.WebDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.EncryptedDocumentException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
@@ -20,9 +23,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -85,13 +91,21 @@ public class TestBase {
     public void tearDown(ITestResult result) {
 
         if (result.getStatus() == ITestResult.FAILURE) {
-            test.fail(result.getName() + " test case is failed. " + "<span class='badge badge-danger'> Fail </span>" + result.getThrowable());
+            // Use class-level driver and test
+            String screenshotPath = takeScreenshot((WebDriver) driver, result.getName());
+
+            test.fail(result.getName() + " test case is failed. " +
+                            "<span class='badge badge-danger'> FAIL </span><br>" +
+                            result.getThrowable(),
+                    MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
 
         } else if (result.getStatus() == ITestResult.SKIP) {
-            test.skip(result.getName() + " test case is skipped." + "<span class='badge badge-warning'> Skip </span>");
+            test.skip(result.getName() + " test case is skipped." +
+                    "<span class='badge badge-warning'> SKIP </span>");
 
         } else if (result.getStatus() == ITestResult.SUCCESS) {
-            test.pass(result.getName() + " test case is Passed." + "<span class='badge badge-success'> Success </span>");
+            test.pass(result.getName() + " test case is Passed." +
+                    "<span class='badge badge-success'> PASS </span>");
         }
     }
 
@@ -136,5 +150,17 @@ public class TestBase {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
         }
+    }
+
+    public String takeScreenshot(WebDriver driver, String screenshotName) {
+        String path = System.getProperty("user.dir") + "/screenshots/" + screenshotName + ".png";
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        try {
+            Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/screenshots/"));
+            Files.copy(screenshot.toPath(), Paths.get(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return path;
     }
 }
