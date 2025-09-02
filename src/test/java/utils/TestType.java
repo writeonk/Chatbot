@@ -5,5 +5,6 @@ public enum TestType {
     HALLUCINATION,
     CONSISTENCY,
     FORMATTING,
-    FALLBACK
+    FALLBACK,
+    SECURITY
 }

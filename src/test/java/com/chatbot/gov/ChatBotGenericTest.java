@@ -37,7 +37,6 @@ public class ChatBotGenericTest extends TestBase {
 
         SoftAssert softAssert = new SoftAssert();
 
-        // validations...
         switch (type) {
             case ACCURACY:
                 ValidationUtils.verifyAccuracy(softAssert, response, tc.getExpected_keywords(), tc.getMin_keyword_match());
@@ -53,6 +52,9 @@ public class ChatBotGenericTest extends TestBase {
                 break;
             case FALLBACK:
                 ValidationUtils.assertFallback(softAssert, response, tc.getFallbackMessages());
+                break;
+            case SECURITY:
+                ValidationUtils.assertSecurity(softAssert, response, tc.getQuestion(), test);
                 break;
         }
 
@@ -117,5 +119,15 @@ public class ChatBotGenericTest extends TestBase {
     @DataProvider(name = "fallbackData")
     public Object[][] provideFallbackData() {
         return JsonDataReader.getTestData("testData/fallback.json", TestCase.class);
+    }
+
+    @Test(dataProvider = "securityData")
+    public void tc06_securityValidation(TestCase tc) {
+        runTestCase(tc, TestType.SECURITY);
+    }
+
+    @DataProvider(name = "securityData")
+    public Object[][] provideSecurityData() {
+        return JsonDataReader.getTestData("testData/security.json", TestCase.class);
     }
 }
