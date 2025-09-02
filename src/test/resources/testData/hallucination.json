@@ -1,0 +1,31 @@
+[
+  {
+    "id": "tc01",
+    "question": "What are the working hours of the Department of Government Support in Abu Dhabi?",
+    "blacklist": [
+      "24/7",
+      "online portal only",
+      "Dubai"
+    ],
+    "expected_keywords": [
+      "working hours",
+      "Sunday to Thursday",
+      "8 AM to 4 PM"
+    ],
+    "min_keyword_match": 2
+  },
+  {
+    "id": "tc02",
+    "question": "How can I apply for a government job in Abu Dhabi?",
+    "blacklist": [
+      "free housing",
+      "Dubai only"
+    ],
+    "expected_keywords": [
+      "TAMM portal",
+      "apply online",
+      "government jobs"
+    ],
+    "min_keyword_match": 2
+  }
+]

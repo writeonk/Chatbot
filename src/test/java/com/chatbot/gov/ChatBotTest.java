@@ -6,6 +6,8 @@ import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import common.TestBase;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.Keys;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -18,6 +20,7 @@ import utils.TestData;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 public class ChatBotTest extends TestBase {
@@ -106,7 +109,7 @@ public class ChatBotTest extends TestBase {
         Assert.assertTrue(chatBotPage.isLastResponseRTL(), "Response should be RTL for Arabic");
     }
 
-    @Test
+    @Test(enabled = false)
     public void tc04testScroll_AutoScrollAndManualScroll() {
 
         test = extent.createTest("testScroll AutoScroll And Manual Scroll", "").assignCategory("UI_TestCase");
@@ -129,7 +132,7 @@ public class ChatBotTest extends TestBase {
         test.log(Status.INFO, "Manual scroll to top failed");
     }
 
-    @Test
+    @Test(enabled = false)
     public void tc05testKeyboardNavigation_Focus() {
 
         test = extent.createTest("test Keyboard Navigation Focus", "").assignCategory("UI_TestCase");
@@ -144,7 +147,7 @@ public class ChatBotTest extends TestBase {
         Assert.assertEquals(focusedId, "send-message-button", "Focus did not move to Send button after pressing TAB");
     }
 
-    @Test
+    @Test(enabled = false)
     public void tc06testManualScrollToBottom() {
         chatBotPage.scrollToTop();
         Assert.assertEquals(chatBotPage.getScrollTop(), 0, "Failed to scroll to top");
@@ -153,8 +156,8 @@ public class ChatBotTest extends TestBase {
         Assert.assertTrue(chatBotPage.isAutoScrolledToBottom(), "Manual scroll to bottom did not work");
     }
 
-    @Test(dataProvider = "chatBotTestData")
-    public void chatBotValidation(TestCase tc) {
+    @Test(dataProvider = "chatBotTestData", enabled = false)
+    public void tc07chatBotValidation(TestCase tc) {
 
         test = extent.createTest("Verify Chatbot Response Accuracy", "").assignCategory("Functional_TestCase");
         logger.info("Verify Chatbot Response Accuracy");
@@ -172,7 +175,6 @@ public class ChatBotTest extends TestBase {
         test.log(Status.INFO, "Bot Response: " + actualResponse);
 
         int matchCount = 0;
-
         // Validate response
         matchCount = countKeywordMatches(actualResponse, expectedKeywords);
 
@@ -184,6 +186,7 @@ public class ChatBotTest extends TestBase {
 
         logger.info("Q: {} | Bot: {} | Keywords Matched: {}/{}",
                 question, actualResponse, matchCount, expectedKeywords.size());
+
         test.log(Status.PASS,
                 String.format("Q: %s | Bot: %s | Keywords Matched: %d/%d",
                         question, actualResponse, matchCount, expectedKeywords.size()));
@@ -202,4 +205,33 @@ public class ChatBotTest extends TestBase {
         System.out.println("Bot Response: " + actualResponse);
         System.out.println("Keywords Matched: " + matchCount + "/" + expectedKeywords.size());
     }
+
+    @Test
+    public void tc08HallucinatedTestDGSBotResponseDynamic() throws Exception {
+
+        test = extent.createTest("Verify Hallucinated Test DGS Bot Response Dynamic", "").assignCategory("Functional_TestCase");
+        logger.info("Verify Hallucinated Test DGS Bot Response Dynamic");
+
+        String ask_que = "What services does DGS provide for government employees?";
+        chatBotPage.enterBotRequest(ask_que);
+        chatBotPage.btnSendPrompt();
+
+        String botResponse = chatBotPage.BotResponse(Duration.ofSeconds(25), Duration.ofMillis(300));
+        System.out.println("Chatbot response: " + botResponse);
+        logger.info("Bot Response: {}", botResponse);
+        test.log(Status.INFO, "Bot Response: " + botResponse);
+
+        // Scrape official DGS page content using Jsoup
+        Document doc = Jsoup.connect("https://www.dgs.gov.ae/en/services").get();
+        String officialContent = doc.body().text(); // all text from the page
+
+        // Basic keyword validation
+        List<String> keywords = Arrays.asList("economic development", "government employees", "Career Development", "enhance employee capabilities");
+
+        boolean isValid = keywords.stream().anyMatch(botResponse.toLowerCase()::contains)
+                && keywords.stream().anyMatch(officialContent.toLowerCase()::contains);
+
+        Assert.assertTrue(isValid, "Bot response may be hallucinated or not aligned with official DGS content.\n Bot response: " + botResponse);
+    }
+
 }

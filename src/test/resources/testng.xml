@@ -4,7 +4,8 @@
     <test name="Test" preserve-order="true">
         <classes>
             <class name="com.chatbot.gov.LoginTest"/>
-            <class name="com.chatbot.gov.ChatBotTest"/>
+<!--            <class name="com.chatbot.gov.ChatBotTest"/>-->
+            <class name="com.chatbot.gov.ChatBotGenericTest"/>
         </classes>
     </test>
 </suite>

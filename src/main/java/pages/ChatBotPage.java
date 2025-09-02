@@ -130,7 +130,6 @@ public class ChatBotPage {
         return scrollTop >= (scrollHeight - clientHeight - 5);
     }
 
-    // Accessibility
     public String getChatInputAccessibleName() {
         // Try aria-label first
         String ariaLabel = txtChatInput.getAttribute("aria-label");

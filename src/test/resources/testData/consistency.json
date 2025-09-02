@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc01",
+    "question": "What are the working hours of DGS?",
+    "consistencyPhrases": ["8 AM to 4 PM", "Sunday to Thursday"]
+  },
+  {
+    "id": "tc02",
+    "question": "Where is the main office of the Department of Government Support?",
+    "consistencyPhrases": ["Abu Dhabi", "head office", "Department of Government Support"]
+  },
+  {
+    "id": "tc03",
+    "question": "How do I apply for government jobs?",
+    "consistencyPhrases": ["TAMM portal", "apply online", "government jobs"]
+  }
+]

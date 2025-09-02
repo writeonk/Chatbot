@@ -2,33 +2,28 @@
 <Configuration status="warn">
     <Properties>
         <Property name="basePath">logs</Property>
-        <Property name="timezone">+04:00</Property>
     </Properties>
 
     <Appenders>
-        <RollingFile name="fileLogger"
-                     fileName="${basePath}/app-log.log"
-                     filePattern="${basePath}/app-log-%d{yyyy-MM-dd_HH-mm-ss}{${timezone}}.log">
+        <RollingFile name="fileLogger" fileName="${basePath}/app-info.log" filePattern="${basePath}/app-info-%d{yyyy-MM-dd}.log">
             <PatternLayout>
-                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS}{${timezone}} [%t] %c{1} - %msg%n</pattern>
+                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
             </PatternLayout>
             <Policies>
-                <!-- Only roll once per run (or on start) -->
-                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
             </Policies>
         </RollingFile>
 
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS}{${timezone}} [%t] %c{1} - %msg%n"/>
+            <PatternLayout   pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
         </Console>
     </Appenders>
-
     <Loggers>
         <Logger name="com.test.app" level="debug" additivity="true">
-            <AppenderRef ref="fileLogger"/>
+            <appender-ref ref="fileLogger" level="debug" />
         </Logger>
         <Root level="debug" additivity="false">
-            <AppenderRef ref="console"/>
+            <appender-ref ref="console" />
         </Root>
     </Loggers>
 </Configuration>
