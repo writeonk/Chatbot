@@ -81,4 +81,16 @@ public class ChatBotPage {
             return null;
         });
     }
+
+    // Verify if last response is RTL (Arabic)
+    public boolean isLastResponseRTL() {
+        String dir = chatBotResponses.get(chatBotResponses.size() - 1).getCssValue("direction");
+        return dir.equalsIgnoreCase("rtl");
+    }
+
+    // Verify if last response is LTR (English)
+    public boolean isLastResponseLTR() {
+        String dir = chatBotResponses.get(chatBotResponses.size() - 1).getCssValue("direction");
+        return dir.equalsIgnoreCase("ltr");
+    }
 }
