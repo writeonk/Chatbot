@@ -1,4 +1,4 @@
-package com.test.app;
+package com.chatbot.gov;
 
 import com.aventstack.extentreports.Status;
 import common.TestBase;
@@ -47,7 +47,7 @@ public class LoginTest extends TestBase {
         logger.info("Click on Login");
     }
 
-    @Test(enabled = false)
+    @Test
     public void tc02ChatWidgetLoadsOnDesktopAndMobile() {
 
         test = extent.createTest("Verify Chat Widget Loads On Desktop And Mobile", "").assignCategory("Functional_TestCase");
