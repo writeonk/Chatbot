@@ -2,7 +2,7 @@
 *.class
 
 # Log file
-*.log
+
 # BlueJ files
 *.ctxt
 
@@ -25,7 +25,6 @@ hs_err_pid*
 
 # TestNG files
 test-output/
-reports/
 
 # OS files
 .DS_Store
@@ -43,6 +42,6 @@ reports/
 /.idea/
 /.gradle
 /build
-/logs
 /.gradle/buildOutputCleanup/buildOutputCleanup.lock
 /gradle/
+/target/

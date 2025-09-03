@@ -8,14 +8,6 @@ import java.util.List;
 
 public class JsonDataReader {
 
-    /**
-     * Generic method to read a JSON file into a TestNG DataProvider format.
-     *
-     * @param filePath Relative path inside src/test/resources
-     * @param clazz    Class type of your test case model
-     * @return Object[][] for TestNG DataProvider
-     */
-
     public static <T> Object[][] getTestData(String filePath, Class<T> clazz) {
         ObjectMapper mapper = new ObjectMapper();
         try {

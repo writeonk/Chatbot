@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.poi.EncryptedDocumentException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
@@ -37,7 +38,6 @@ public class TestBase {
 
     public static Properties properties;
     public static org.openqa.selenium.WebDriver driver;
-    public static WebDriver webdriver = new WebDriver();
 
     public static Date date = new Date();
     public static SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
@@ -161,5 +161,9 @@ public class TestBase {
             e.printStackTrace();
         }
         return path;
+    }
+
+    public void openURL(String url) {
+        driver.get(url);
     }
 }

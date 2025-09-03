@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tc01",
+    "question": "Show me government services in Abu Dhabi",
+    "expected_keywords": [
+      "services",
+      "Abu Dhabi",
+      "government"
+    ],
+    "min_keyword_match": 2
+  },
+  {
+    "id": "tc02",
+    "question": "What is the process for renewing my Emirates ID?",
+    "expected_keywords": [
+      "renew",
+      "Emirates ID",
+      "application"
+    ],
+    "min_keyword_match": 2
+  }
+]

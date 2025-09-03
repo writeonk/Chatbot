@@ -1,0 +1,99 @@
+[
+  {
+    "id": "UI001",
+    "testType": "ui",
+    "question": "Hello",
+    "expectedLTR": true,
+    "expectedInputCleared": true,
+    "expected_keywords": [
+      "hello",
+      "welcome"
+    ],
+    "min_keyword_match": 1,
+    "blacklist": [
+      "error",
+      "exception"
+    ],
+    "fallbackMessages": [
+      "Sorry",
+      "I didn’t understand"
+    ],
+    "consistencyPhrases": [
+      "How can I help you"
+    ],
+    "strictHallucination": true,
+    "isEnglish": true,
+    "messageCount": 0
+  },
+  {
+    "id": "UI002",
+    "testType": "ui",
+    "question": "مرحبا",
+    "expectedLTR": false,
+    "expectedInputCleared": true,
+    "expected_keywords": [
+      "مرحبا",
+      "أهلا"
+    ],
+    "min_keyword_match": 1,
+    "blacklist": [
+      "خطأ",
+      "فشل"
+    ],
+    "fallbackMessages": [
+      "عذرًا",
+      "لم أفهم"
+    ],
+    "consistencyPhrases": [
+      "كيف أساعدك"
+    ],
+    "strictHallucination": true,
+    "isEnglish": false,
+    "messageCount": 0
+  },
+  {
+    "id": "UI003",
+    "testType": "ui",
+    "question": "Check widget visibility",
+    "expectedLTR": true,
+    "expectedInputCleared": true,
+    "expected_keywords": [
+      "visible",
+      "widget"
+    ],
+    "min_keyword_match": 1,
+    "blacklist": [],
+    "fallbackMessages": [
+      "Not visible",
+      "Widget missing"
+    ],
+    "consistencyPhrases": [
+      "Chat is active"
+    ],
+    "strictHallucination": false,
+    "isEnglish": true,
+    "messageCount": 0
+  },
+  {
+    "id": "UI004",
+    "testType": "ui",
+    "question": "Auto-scroll should work when multiple messages sent",
+    "expectedLTR": true,
+    "expectedInputCleared": true,
+    "expected_keywords": [
+      "scroll",
+      "bottom"
+    ],
+    "min_keyword_match": 1,
+    "blacklist": [],
+    "fallbackMessages": [
+      "scroll failed"
+    ],
+    "consistencyPhrases": [
+      "scrolling"
+    ],
+    "strictHallucination": false,
+    "isEnglish": true,
+    "messageCount": 20
+  }
+]

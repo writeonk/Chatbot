@@ -1,0 +1,14 @@
+[
+  {
+    "id": "tc01",
+    "description": "Chat input should have aria-label",
+    "checkAttribute": "aria-label",
+    "expectedNotNull": true
+  },
+  {
+    "id": "tc02",
+    "description": "Chat input should support placeholder",
+    "checkAttribute": "data-placeholder",
+    "expectedNotNull": true
+  }
+]

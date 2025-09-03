@@ -6,5 +6,7 @@ public enum TestType {
     CONSISTENCY,
     FORMATTING,
     FALLBACK,
-    SECURITY
+    SECURITY,
+    UI_BEHAVIOR,
+    ACCESSIBILITY
 }

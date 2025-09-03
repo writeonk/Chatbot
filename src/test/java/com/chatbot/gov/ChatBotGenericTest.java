@@ -30,49 +30,88 @@ public class ChatBotGenericTest extends TestBase {
         test = extent.createTest("Chatbot Test: " + tc.getId() + " [" + type + "]")
                 .assignCategory("Functional_TestCase");
 
-        String question = tc.getQuestion();
-        chatBotPage.enterBotRequest(question);
-        chatBotPage.btnSendPrompt();
-        String response = chatBotPage.BotResponse(Duration.ofSeconds(25), Duration.ofMillis(300));
-
         SoftAssert softAssert = new SoftAssert();
+        String response = null;
+
+        if (type != TestType.ACCESSIBILITY) {
+            if (tc.getQuestion() != null && !tc.getQuestion().isEmpty()) {
+                chatBotPage.enterBotRequest(tc.getQuestion());
+                chatBotPage.btnSendPrompt();
+                response = chatBotPage.BotResponse(Duration.ofSeconds(25), Duration.ofMillis(300));
+            }
+        }
 
         switch (type) {
             case ACCURACY:
                 ValidationUtils.verifyAccuracy(softAssert, response, tc.getExpected_keywords(), tc.getMin_keyword_match());
                 break;
+
             case HALLUCINATION:
                 ValidationUtils.verifyNoHallucination(softAssert, response, tc.getBlacklist(), tc.isStrictHallucination(), test);
                 break;
+
             case CONSISTENCY:
-                ValidationUtils.assertConsistency(softAssert, response, tc.getConsistencyPhrases());
+                ValidationUtils.verifyConsistency(softAssert, response, tc.getConsistencyPhrases());
                 break;
+
             case FORMATTING:
-                ValidationUtils.assertFormatting(softAssert, response);
+                ValidationUtils.verifyFormatting(softAssert, response);
                 break;
+
             case FALLBACK:
-                ValidationUtils.assertFallback(softAssert, response, tc.getFallbackMessages());
+                ValidationUtils.verifyFallback(softAssert, response, tc.getFallbackMessages());
                 break;
+
             case SECURITY:
-                ValidationUtils.assertSecurity(softAssert, response, tc.getQuestion(), test);
+                ValidationUtils.verifySecurity(softAssert, response, tc.getQuestion(), test);
+                break;
+
+            case UI_BEHAVIOR:
+                ValidationUtils.verifyMultilingualSupport(
+                        softAssert,
+                        chatBotPage,
+                        tc.isEnglish(),
+                        test
+                );
+
+                ValidationUtils.verifyChatWidget(
+                        softAssert,
+                        chatBotPage,
+                        test
+                );
+
+                if (tc.getMessageCount() > 0) {
+                    ValidationUtils.verifyAutoScroll(
+                            softAssert,
+                            chatBotPage,
+                            tc.getMessageCount(),
+                            test
+                    );
+                }
+                break;
+
+            case ACCESSIBILITY:
+                ValidationUtils.verifyAccessibility(softAssert, chatBotPage, tc, test);
                 break;
         }
 
-        test.log(Status.INFO, MarkupHelper.createLabel("Question: " + question, ExtentColor.BLUE));
-        // Assert all SoftAssert failures WITHOUT stopping next tests
+        if (tc.getQuestion() != null) {
+            test.log(Status.INFO, MarkupHelper.createLabel("Question: " + tc.getQuestion(), ExtentColor.BLUE));
+            test.log(Status.INFO, MarkupHelper.createLabel("Bot Response: " + response, ExtentColor.GREEN));
+            logger.info("Question: {}", tc.getQuestion());
+            logger.info("Bot Response: {}", response);
+        }
+
         try {
             softAssert.assertAll();
         } catch (AssertionError e) {
             test.log(Status.FAIL, MarkupHelper.createLabel("SoftAssert failures: " + e.getMessage(), ExtentColor.RED));
-            logger.error("SoftAssert failures: {}", e.getMessage());
-            // do NOT rethrow
+            logger.info("SoftAssert failures: {}", e.getMessage());
         }
-
-        test.log(Status.INFO, MarkupHelper.createLabel("Bot Response: " + response, ExtentColor.YELLOW));
     }
 
     @Test(dataProvider = "accuracyData")
-    public void tc01_accuracyValidation(TestCase tc) {
+    public void tc01_accuracy(TestCase tc) {
         runTestCase(tc, TestType.ACCURACY);
     }
 
@@ -82,7 +121,7 @@ public class ChatBotGenericTest extends TestBase {
     }
 
     @Test(dataProvider = "hallucinationData")
-    public void tc02_hallucinationValidation(TestCase tc) {
+    public void tc02_hallucination(TestCase tc) {
         runTestCase(tc, TestType.HALLUCINATION);
     }
 
@@ -92,7 +131,7 @@ public class ChatBotGenericTest extends TestBase {
     }
 
     @Test(dataProvider = "consistencyData")
-    public void tc03_consistencyValidation(TestCase tc) {
+    public void tc03_consistency(TestCase tc) {
         runTestCase(tc, TestType.CONSISTENCY);
     }
 
@@ -102,7 +141,7 @@ public class ChatBotGenericTest extends TestBase {
     }
 
     @Test(dataProvider = "formattingData")
-    public void tc04_formattingValidation(TestCase tc) {
+    public void tc04_formatting(TestCase tc) {
         runTestCase(tc, TestType.FORMATTING);
     }
 
@@ -112,7 +151,7 @@ public class ChatBotGenericTest extends TestBase {
     }
 
     @Test(dataProvider = "fallbackData")
-    public void tc05_fallbackValidation(TestCase tc) {
+    public void tc05_fallback(TestCase tc) {
         runTestCase(tc, TestType.FALLBACK);
     }
 
@@ -122,12 +161,32 @@ public class ChatBotGenericTest extends TestBase {
     }
 
     @Test(dataProvider = "securityData")
-    public void tc06_securityValidation(TestCase tc) {
+    public void tc06_security(TestCase tc) {
         runTestCase(tc, TestType.SECURITY);
     }
 
     @DataProvider(name = "securityData")
     public Object[][] provideSecurityData() {
         return JsonDataReader.getTestData("testData/security.json", TestCase.class);
+    }
+
+    @Test(dataProvider = "uiBehaviorData")
+    public void tc07_uiBehavior(TestCase tc) {
+        runTestCase(tc, TestType.UI_BEHAVIOR);
+    }
+
+    @DataProvider(name = "uiBehaviorData")
+    public Object[][] provideUIBehaviorData() {
+        return JsonDataReader.getTestData("testData/UI.json", TestCase.class);
+    }
+
+    @Test(dataProvider = "accessibilityData")
+    public void tc08_accessibility(TestCase tc) {
+        runTestCase(tc, TestType.ACCESSIBILITY);
+    }
+
+    @DataProvider(name = "accessibilityData")
+    public Object[][] provideAccessibilityData() {
+        return JsonDataReader.getTestData("testData/accessibility.json", TestCase.class);
     }
 }

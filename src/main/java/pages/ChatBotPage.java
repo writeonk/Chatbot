@@ -86,7 +86,6 @@ public class ChatBotPage {
         });
     }
 
-    // Actions
     public void txtSendPrompt(String text) {
         txtChatInput.sendKeys(text);
         txtChatInput.sendKeys(Keys.ENTER); // accessibility check (Enter key)
@@ -102,7 +101,6 @@ public class ChatBotPage {
         return (result != null) ? ((Number) result).longValue() : 0L;
     }
 
-    // Scroll
     public long getScrollHeight() {
         return getJsValueAsLong("return arguments[0].scrollHeight;", chatWindow);
     }
@@ -146,13 +144,17 @@ public class ChatBotPage {
         return null;
     }
 
-    public WebElement getFocusedElement() {
-        return driver.switchTo().activeElement();
-    }
-
-    public boolean isLastResponseLTR() {
+    public boolean isResponseLTR() {
         String dir = chatBotResponses.get(chatBotResponses.size() - 1).getCssValue("direction");
         return dir.equalsIgnoreCase("ltr");
+    }
+
+    public boolean isInputCleared() {
+        return txtChatInput.getText().trim().isEmpty();
+    }
+
+    public boolean isChatWidgetVisible() {
+        return chatWindow.isDisplayed();
     }
 
     public boolean isLastResponseRTL() {
@@ -189,4 +191,31 @@ public class ChatBotPage {
             return false;
         }
     }
+
+    public String getAttributeOfInput(String attributeName) {
+        if (txtChatInput == null) return null;
+        try {
+            return txtChatInput.getAttribute(attributeName);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String simulateTabAndGetFocusedElementId() {
+        WebElement active = getFocusedElement(); // focus first
+        active.sendKeys(Keys.TAB);               // send TAB
+        WebElement newFocused = getFocusedElement();
+        return newFocused.getAttribute("id");
+    }
+
+    public WebElement getFocusedElement() {
+        return driver.switchTo().activeElement();
+    }
+
+    public String getRoleOfMessages() {
+        if (chatBotResponses == null || chatBotResponses.isEmpty()) return null;
+        WebElement last = chatBotResponses.get(chatBotResponses.size() - 1);
+        return last.getAttribute("role");
+    }
+
 }
